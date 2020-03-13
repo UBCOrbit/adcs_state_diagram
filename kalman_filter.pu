@@ -1,0 +1,9 @@
+@startuml kalman_filter
+hide empty description
+state KalmanFilter {
+    [*] --> CollectSensorData
+    CollectSensorData --> UpdateKalmanFilter
+    UpdateKalmanFilter --> KalmanFilterSleep
+    KalmanFilterSleep --> CollectSensorData
+}
+@enduml

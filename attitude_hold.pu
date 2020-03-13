@@ -1,0 +1,19 @@
+@startuml attitude_hold
+hide empty description
+state AttitudeHold {
+    [*] --> CalculateAttitudeError
+    CalculateAttitudeError --> CalculateAttitudeOutput : Error > $attitude_threshold
+    CalculateAttitudeError --> NotifyRequester : Error ≤ $attitude_threshold
+    NotifyRequester --> AttitudeHoldContinue
+    AttitudeHoldContinue --> CalculateAttitudeError : Attitude hold should continue
+    AttitudeHoldContinue --> [*] : Attitude hold no longer necessary
+    CalculateAttitudeOutput --> ApplyAttitudeOutput
+    ApplyAttitudeOutput --> CalculateAttitudeError
+
+    AttitudeHoldContinue : - Requesting subsystem can declare\n\
+    hold is no longer needed
+
+    AttitudeHoldContinue : - Hold no longer needed if timeout elapsed
+}
+AttitudeHold --> RateHold
+@enduml

@@ -1,0 +1,13 @@
+@startuml adcs_state_diagram_preview
+hide empty description
+
+state initial_fork <<fork>>
+
+[*] --> initial_fork
+initial_fork --> RateHold
+initial_fork --> OrbitPropagation
+initial_fork --> KalmanFilter
+
+RateHold --> AttitudeHold : Hold request recieved
+AttitudeHold --> RateHold : Hold request released
+@enduml

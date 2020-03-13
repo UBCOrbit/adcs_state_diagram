@@ -12,62 +12,12 @@ initial_fork --> RateHold
 initial_fork --> OrbitPropagation
 initial_fork --> KalmanFilter
 
-state OrbitPropagation {
-    [*] --> IsPositionStale
-    IsPositionStale --> PropagateOrbit : Last GPS position is recent
-    IsPositionStale --> GetGPSFix : Last GPS position is stale
-    PropagateOrbit --> OrbitPropagationSleep
-    GetGPSFix --> OrbitPropagationSleep
-    OrbitPropagationSleep --> IsPositionStale
-}
+!include orbit_propagation.pu
 
-state KalmanFilter {
-    [*] --> CollectSensorData
-    CollectSensorData --> UpdateKalmanFilter
-    UpdateKalmanFilter --> KalmanFilterSleep
-    KalmanFilterSleep --> CollectSensorData
-}
+!include kalman_filter.pu
 
-state RateHold {
-    [*] --> CheckAngularRateIdle
-    CheckAngularRateIdle --> HandleAttitudeRequest : Rate ≤ $rate_threshold
-    HandleAttitudeRequest --> RateHoldSleep : No request
-    HandleAttitudeRequest --> AttitudeHold : Attitude request recieved
-    RateHoldSleep --> CheckAngularRateIdle
-    CheckAngularRateIdle --> CalculateEnergyRequirement : Rate > $rate_threshold
-    CalculateEnergyRequirement --> RequestEnergy
-    RequestEnergy --> Detumble : Energy available
-    RequestEnergy --> RateHoldSleep : Energy unavailable
+!include rate_hold.pu
 
-    state Detumble {
-        [*] --> CalculateBDot
-        CalculateBDot --> CalculateDtblOutput
-        CalculateDtblOutput --> ApplyDtblOutput
-        ApplyDtblOutput --> CheckAngularRateDtbl
-        CheckAngularRateDtbl --> CalculateBDot : Rate > $rate_threshold
-        CheckAngularRateDtbl --> [*] : Rate ≤ $rate_threshold
-    }
-    Detumble --> RateHoldSleep
-
-    HandleAttitudeRequest : Request must contain a NED vector\n\
-    for the camera to point towards
-}
-
-state AttitudeHold {
-    [*] --> CalculateAttitudeError
-    CalculateAttitudeError --> CalculateAttitudeOutput : Error > $attitude_threshold
-    CalculateAttitudeError --> NotifyRequester : Error ≤ $attitude_threshold
-    NotifyRequester --> AttitudeHoldContinue
-    AttitudeHoldContinue --> CalculateAttitudeError : Attitude hold should continue
-    AttitudeHoldContinue --> [*] : Attitude hold no longer necessary
-    CalculateAttitudeOutput --> ApplyAttitudeOutput
-    ApplyAttitudeOutput --> CalculateAttitudeError
-
-    AttitudeHoldContinue : - Requesting subsystem can declare\n\
-    hold is no longer needed
-
-    AttitudeHoldContinue : - Hold no longer needed if timeout elapsed
-}
-AttitudeHold --> RateHold
+!include attitude_hold.pu
 
 @enduml

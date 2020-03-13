@@ -1,0 +1,10 @@
+@startuml detumble
+state Detumble {
+    [*] --> CalculateBDot
+    CalculateBDot --> CalculateDtblOutput
+    CalculateDtblOutput --> ApplyDtblOutput
+    ApplyDtblOutput --> CheckAngularRateDtbl
+    CheckAngularRateDtbl --> CalculateBDot : Rate > $rate_threshold
+    CheckAngularRateDtbl --> [*] : Rate ≤ $rate_threshold
+}
+@enduml

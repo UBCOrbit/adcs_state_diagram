@@ -1,0 +1,11 @@
+@startuml orbit_propagation
+hide empty description
+state OrbitPropagation {
+    [*] --> IsPositionStale
+    IsPositionStale --> OrbitPropagationSleep : Last GPS position is recent
+    IsPositionStale --> GetGPSFix : Last GPS position is stale
+    GetGPSFix --> UpdateOrbitParameters
+    UpdateOrbitParameters --> OrbitPropagationSleep
+    OrbitPropagationSleep --> IsPositionStale
+}
+@enduml

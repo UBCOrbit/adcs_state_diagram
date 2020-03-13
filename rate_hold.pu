@@ -1,0 +1,21 @@
+@startuml rate_hold
+hide empty description
+state AttitudeHold
+state RateHold {
+    [*] --> CheckAngularRateIdle
+    CheckAngularRateIdle --> HandleAttitudeRequest : Rate ≤ $rate_threshold
+    HandleAttitudeRequest --> RateHoldSleep : No request
+    HandleAttitudeRequest --> AttitudeHold : Attitude request recieved
+    RateHoldSleep --> CheckAngularRateIdle
+    CheckAngularRateIdle --> CalculateEnergyRequirement : Rate > $rate_threshold
+    CalculateEnergyRequirement --> RequestEnergy
+    RequestEnergy --> Detumble : Energy available
+    RequestEnergy --> RateHoldSleep : Energy unavailable
+
+    !include detumble.pu
+    Detumble --> RateHoldSleep
+
+    HandleAttitudeRequest : Request must contain a NED vector\n\
+    for the camera to point towards
+}
+@enduml
